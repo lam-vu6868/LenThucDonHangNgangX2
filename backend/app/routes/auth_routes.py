@@ -103,5 +103,10 @@ def get_current_user():
         'username': current_user.username,
         'email': current_user.email,
         'height': current_user.height,
-        'weight': current_user.weight
+        'weight': current_user.weight,
+        'age': current_user.age,
+        'gender': current_user.gender,
+        'dietary_preferences': current_user.dietary_preferences,
+        'activity_level': current_user.activity_level,
+        'allergies': current_user.allergies
     })

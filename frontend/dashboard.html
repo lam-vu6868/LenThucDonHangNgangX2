@@ -31,6 +31,49 @@
     <!-- Dashboard Content -->
     <main class="dashboard">
         <div class="container">
+            <!-- Statistics Overview Cards -->
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-number" id="totalMenusCount">0</span>
+                        <span class="stat-label">Thực đơn đã tạo</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-number" id="weekMenusCount">0</span>
+                        <span class="stat-label">Thực đơn tuần này</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-number" id="goalStatus">--</span>
+                        <span class="stat-label">Mục tiêu</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-details">
+                        <span class="stat-number" id="streakCount">🔥 0</span>
+                        <span class="stat-label">Kế hoạch liên tục</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Health Stats Card -->
             <div class="health-stats-card">
                 <h3><i class="fas fa-heartbeat"></i> Sức khỏe của bạn</h3>
@@ -43,10 +86,18 @@
                         </div>
                     </div>
                     <div class="stat-item">
-                        <i class="fas fa-chart-line"></i>
+                        <div class="bmi-progress-ring">
+                            <svg width="80" height="80">
+                                <circle class="progress-ring-circle-bg" cx="40" cy="40" r="32"></circle>
+                                <circle class="progress-ring-circle" id="bmiProgressCircle" cx="40" cy="40" r="32"></circle>
+                            </svg>
+                            <div class="bmi-value-center">
+                                <span class="bmi-number" id="currentBMI">--</span>
+                                <span class="bmi-text">BMI</span>
+                            </div>
+                        </div>
                         <div class="stat-info">
-                            <span class="stat-label">BMI</span>
-                            <span class="stat-value" id="currentBMI">--</span>
+                            <span class="stat-label" id="bmiCategory">Đang tính...</span>
                         </div>
                     </div>
                     <div class="stat-item">
@@ -99,10 +150,13 @@
 
                 <!-- Empty State -->
                 <div id="emptyState" class="empty-state">
-                    <i class="fas fa-utensils"></i>
-                    <p>Chưa có thực đơn cho ngày này</p>
-                    <button class="btn btn-primary" id="createMenuBtn">
-                        <i class="fas fa-plus"></i> Tạo thực đơn
+                    <div class="empty-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>Chưa có thực đơn cho ngày này</h3>
+                    <p>Hãy để AI tạo thực đơn dinh dưỡng phù hợp với bạn</p>
+                    <button class="btn btn-primary btn-large" id="createMenuBtn">
+                        <i class="fas fa-magic"></i> Tạo thực đơn ngay
                     </button>
                 </div>
 
@@ -115,10 +169,15 @@
                     <!-- 3 Bữa: Sáng - Trưa - Tối -->
                     <div class="meals-grid">
                         <!-- Bữa Sáng -->
-                        <div class="meal-card">
+                        <div class="meal-card breakfast-card">
                             <div class="meal-header breakfast">
-                                <i class="fas fa-mug-hot"></i>
+                                <div class="meal-icon">
+                                    <i class="fas fa-mug-hot"></i>
+                                </div>
                                 <h3>Bữa Sáng</h3>
+                                <button class="btn-edit-meal" data-meal-type="breakfast" title="Sửa bữa sáng">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                             </div>
                             <div class="meal-content" id="breakfastContent">
                                 <p class="meal-placeholder">Chưa có dữ liệu</p>
@@ -126,10 +185,15 @@
                         </div>
 
                         <!-- Bữa Trưa -->
-                        <div class="meal-card">
+                        <div class="meal-card lunch-card">
                             <div class="meal-header lunch">
-                                <i class="fas fa-sun"></i>
+                                <div class="meal-icon">
+                                    <i class="fas fa-sun"></i>
+                                </div>
                                 <h3>Bữa Trưa</h3>
+                                <button class="btn-edit-meal" data-meal-type="lunch" title="Sửa bữa trưa">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                             </div>
                             <div class="meal-content" id="lunchContent">
                                 <p class="meal-placeholder">Chưa có dữ liệu</p>
@@ -137,10 +201,15 @@
                         </div>
 
                         <!-- Bữa Tối -->
-                        <div class="meal-card">
+                        <div class="meal-card dinner-card">
                             <div class="meal-header dinner">
-                                <i class="fas fa-moon"></i>
+                                <div class="meal-icon">
+                                    <i class="fas fa-moon"></i>
+                                </div>
                                 <h3>Bữa Tối</h3>
+                                <button class="btn-edit-meal" data-meal-type="dinner" title="Sửa bữa tối">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                             </div>
                             <div class="meal-content" id="dinnerContent">
                                 <p class="meal-placeholder">Chưa có dữ liệu</p>
@@ -260,6 +329,37 @@
                 <canvas id="weightChart"></canvas>
                 <div class="weight-stats" id="weightStats"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Edit Meal Modal -->
+    <div id="editMealModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> Sửa <span id="editMealTitle">Bữa ăn</span></h3>
+                <button class="close-modal" id="closeEditMealModal">&times;</button>
+            </div>
+            <form id="editMealForm">
+                <div class="dishes-list" id="dishesList">
+                    <!-- Dishes will be added here dynamically -->
+                </div>
+                
+                <button type="button" class="btn btn-secondary btn-add-dish" id="addDishBtn">
+                    <i class="fas fa-plus"></i> Thêm món ăn
+                </button>
+                
+                <div class="total-calories-display">
+                    <span class="total-label">Tổng calo:</span>
+                    <span class="total-value" id="totalCaloriesDisplay">0 kcal</span>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelEditMealBtn">Hủy</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Lưu thay đổi
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 

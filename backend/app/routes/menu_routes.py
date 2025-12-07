@@ -461,3 +461,125 @@ def get_menu_week():
         })
     
     return jsonify({'menus': result, 'count': len(result)}), 200
+
+@menu_bp.route('/all', methods=['GET'])
+@login_required
+def get_all_menus():
+    """Lấy tất cả thực đơn của user"""
+    menus = DailyMenu.query.filter(
+        DailyMenu.user_id == current_user.id
+    ).order_by(DailyMenu.date.desc()).all()
+    
+    result = []
+    for menu in menus:
+        result.append({
+            'date': str(menu.date),
+            'content': menu.content,
+            'calories': menu.total_calories
+        })
+    
+    return jsonify({'menus': result, 'count': len(result)}), 200
+
+@menu_bp.route('/update-meal', methods=['PATCH'])
+@login_required
+def update_meal():
+    """Cập nhật một bữa ăn cụ thể trong thực đơn"""
+    data = request.get_json()
+    
+    # Validate input
+    menu_date = data.get('date')
+    meal_type = data.get('meal_type')  # 'breakfast', 'lunch', 'dinner'
+    new_content = data.get('content')
+    new_calories = data.get('calories')
+    
+    if not all([menu_date, meal_type, new_content, new_calories]):
+        return jsonify({'error': 'Thiếu thông tin bắt buộc'}), 400
+    
+    if meal_type not in ['breakfast', 'lunch', 'dinner']:
+        return jsonify({'error': 'Loại bữa ăn không hợp lệ'}), 400
+    
+    try:
+        # Tìm menu của ngày đó
+        menu = DailyMenu.query.filter_by(
+            user_id=current_user.id,
+            date=menu_date
+        ).first()
+        
+        if not menu:
+            return jsonify({'error': 'Không tìm thấy thực đơn'}), 404
+        
+        # Parse nội dung hiện tại
+        content_lines = menu.content.split('\n')
+        
+        # Xác định vị trí của từng bữa ăn
+        meal_headers = {
+            'breakfast': 'Bữa sáng',
+            'lunch': 'Bữa trưa', 
+            'dinner': 'Bữa tối'
+        }
+        
+        # Tìm và thay thế bữa ăn
+        new_lines = []
+        current_meal = None
+        skip_lines = False
+        
+        for line in content_lines:
+            # Kiểm tra xem có phải header của bữa ăn không
+            if any(header in line for header in meal_headers.values()):
+                # Xác định bữa ăn hiện tại
+                for meal, header in meal_headers.items():
+                    if header in line:
+                        current_meal = meal
+                        break
+                
+                # Nếu đây là bữa cần sửa
+                if current_meal == meal_type:
+                    new_lines.append(line)  # Giữ header
+                    new_lines.append(new_content)  # Thêm nội dung mới
+                    skip_lines = True
+                else:
+                    new_lines.append(line)
+                    skip_lines = False
+            elif line.strip().startswith('Tổng calo:'):
+                # Tính lại tổng calo
+                skip_lines = False
+                # Sẽ tính lại sau
+            elif skip_lines:
+                # Bỏ qua các dòng của bữa ăn cũ
+                continue
+            else:
+                new_lines.append(line)
+        
+        # Tính lại tổng calo
+        total_calories = 0
+        for line in new_lines:
+            if 'kcal' in line.lower() and '-' in line:
+                try:
+                    # Extract số calo từ dòng
+                    cal_str = line.split('-')[-1].strip()
+                    cal_str = cal_str.replace('kcal', '').strip()
+                    total_calories += int(cal_str)
+                except:
+                    pass
+        
+        # Thêm dòng tổng calo
+        new_lines.append(f"\nTổng calo: {total_calories} kcal")
+        
+        # Cập nhật database
+        menu.content = '\n'.join(new_lines)
+        menu.total_calories = total_calories
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Cập nhật bữa ăn thành công',
+            'menu': {
+                'date': str(menu.date),
+                'content': menu.content,
+                'calories': menu.total_calories
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Lỗi khi cập nhật: {str(e)}'}), 500

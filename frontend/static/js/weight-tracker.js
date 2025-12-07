@@ -58,7 +58,12 @@ function updateWeightDisplay(data) {
         currentWeightEl.textContent = `${data.current_weight.toFixed(1)} kg`;
         
         if (data.bmi) {
-            currentBMIEl.textContent = data.bmi.toFixed(1);
+            const bmi = data.bmi.toFixed(1);
+            currentBMIEl.textContent = bmi;
+            // Update BMI Progress Ring if function exists
+            if (typeof window.updateBMIRing === 'function') {
+                window.updateBMIRing(parseFloat(bmi));
+            }
         } else {
             currentBMIEl.textContent = '--';
         }
