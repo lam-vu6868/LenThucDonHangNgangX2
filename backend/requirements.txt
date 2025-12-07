@@ -18,6 +18,7 @@ Flask-WTF
 
 # --- Admin Panel ---
 Flask-Admin
+Flask-Babel
 
 # --- Google AI (Gemini) ---
 google-generativeai 

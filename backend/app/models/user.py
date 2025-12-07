@@ -22,6 +22,9 @@ class User(UserMixin, db.Model):
     dietary_preferences = db.Column(db.String(200)) 
     allergies = db.Column(db.String(200)) 
     
+    # Admin role
+    is_admin = db.Column(db.Boolean, default=False)
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Quan hệ

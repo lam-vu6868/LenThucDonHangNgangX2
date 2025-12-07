@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_cors import CORS  # <-- Thêm CORS
+from flask_babel import Babel
 from config import Config
 
 # Khởi tạo các extension
@@ -12,6 +13,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
+babel = Babel()
 
 # Unauthorized handler - Trả về JSON thay vì redirect
 @login.unauthorized_handler
@@ -26,6 +28,10 @@ def create_app():
 
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     app.config.from_object(Config)
+    
+    # Cấu hình ngôn ngữ tiếng Việt
+    app.config['BABEL_DEFAULT_LOCALE'] = 'vi'
+    app.config['BABEL_TRANSLATION_DIRECTORIES'] = 'translations'
 
     # CORS không cần thiết vì frontend và backend cùng origin (port 5000)
     # Nhưng giữ lại với origins=['*'] cho development
@@ -40,6 +46,7 @@ def create_app():
     migrate.init_app(app, db)
     login.init_app(app)
     login.session_protection = 'strong'
+    babel.init_app(app)
 
     # --- KHU VỰC TẠO BẢNG TỰ ĐỘNG (QUAN TRỌNG) ---
     with app.app_context():
@@ -72,5 +79,9 @@ def create_app():
     # 5. Chat (Nếu bạn muốn giữ lại thì bỏ comment dòng dưới)
     # from app.routes.chat_routes import chat_bp
     # app.register_blueprint(chat_bp, url_prefix='/api/chat')
+
+    # 6. Admin Panel (Flask-Admin)
+    from app.admin_views import init_admin
+    init_admin(app)
 
     return app

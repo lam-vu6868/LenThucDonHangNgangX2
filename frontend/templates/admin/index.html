@@ -1,0 +1,101 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid animated">
+    <div class="page-header">
+        <h1>🎯 Dashboard Quản Trị</h1>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">Xin chào, <strong>{{ current_user.username }}</strong>! Chào mừng bạn đến với trang quản trị LenMenu.</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h3>{{ total_users }}</h3>
+                <p>👥 Tổng Người Dùng</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <h3>{{ total_menus }}</h3>
+                <p>🍽️ Thực Đơn</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <h3>{{ total_weight_logs }}</h3>
+                <p>⚖️ Bản Ghi Cân Nặng</p>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <h3>{{ admin_count }}</h3>
+                <p>👨‍💼 Quản Trị Viên</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row" style="margin-top: 30px;">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 style="margin-bottom: 20px; color: #667eea; font-weight: 700;">
+                        <i class="fa fa-chart-line"></i> Thống Kê Hệ Thống
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div style="padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 15px;">
+                                <h5 style="color: #667eea; font-weight: 600;">Người dùng hoạt động</h5>
+                                <p style="margin: 0; font-size: 1.2rem; font-weight: 700;">{{ total_users }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div style="padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 15px;">
+                                <h5 style="color: #f5576c; font-weight: 600;">Thực đơn được tạo</h5>
+                                <p style="margin: 0; font-size: 1.2rem; font-weight: 700;">{{ total_menus }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div style="padding: 20px; background: #f8f9fa; border-radius: 10px; margin-bottom: 15px;">
+                                <h5 style="color: #00f2fe; font-weight: 600;">Lần theo dõi cân nặng</h5>
+                                <p style="margin: 0; font-size: 1.2rem; font-weight: 700;">{{ total_weight_logs }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row" style="margin-top: 20px;">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 style="margin-bottom: 20px; color: #667eea; font-weight: 700;">
+                        <i class="fa fa-rocket"></i> Truy Cập Nhanh
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <a href="{{ url_for('user.index_view') }}" class="btn btn-primary btn-block" style="padding: 15px; font-size: 1.1rem;">
+                                <i class="fa fa-users"></i> Quản Lý Người Dùng
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('dailymenu.index_view') }}" class="btn btn-primary btn-block" style="padding: 15px; font-size: 1.1rem;">
+                                <i class="fa fa-utensils"></i> Quản Lý Thực Đơn
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('weightlog.index_view') }}" class="btn btn-primary btn-block" style="padding: 15px; font-size: 1.1rem;">
+                                <i class="fa fa-weight"></i> Quản Lý Cân Nặng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

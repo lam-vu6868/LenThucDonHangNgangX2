@@ -1,0 +1,326 @@
+{% extends 'admin/base.html' %}
+
+{% block head_css %}
+{{ super() }}
+<style>
+    /* Custom Admin Styles */
+    :root {
+        --primary-color: #4CAF50;
+        --primary-dark: #388E3C;
+        --danger-color: #f44336;
+        --text-dark: #333;
+        --bg-light: #f5f5f5;
+    }
+    
+    /* Navbar Customization */
+    .navbar-brand {
+        font-weight: 700 !important;
+        font-size: 1.5rem !important;
+        color: var(--primary-color) !important;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .navbar-brand:before {
+        content: "🍽️";
+        font-size: 1.8rem;
+    }
+    
+    .navbar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 1rem 2rem !important;
+    }
+    
+    .navbar .navbar-text,
+    .navbar .nav-link {
+        color: white !important;
+        font-weight: 500;
+    }
+    
+    /* User Info Box */
+    .admin-user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 15px;
+        border-radius: 25px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .admin-user-info .user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1rem;
+        border: 2px solid white;
+    }
+    
+    .admin-user-info .user-name {
+        color: white;
+        font-weight: 600;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+    
+    /* Logout Button */
+    .btn-logout {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+        border: none !important;
+        color: white !important;
+        padding: 8px 20px !important;
+        border-radius: 25px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3) !important;
+    }
+    
+    .btn-logout:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4) !important;
+    }
+    
+    /* Sidebar */
+    .nav-pills .nav-link {
+        border-radius: 10px !important;
+        margin-bottom: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-pills .nav-link:hover {
+        background: rgba(102, 126, 234, 0.1) !important;
+        transform: translateX(5px);
+    }
+    
+    .nav-pills .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    /* Cards & Tables */
+    .card {
+        border-radius: 15px !important;
+        border: none !important;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08) !important;
+        margin-bottom: 20px;
+    }
+    
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .table thead th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05) !important;
+        transform: scale(1.01);
+    }
+    
+    /* Buttons */
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 8px 20px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+    }
+    
+    /* Stats Cards on Dashboard */
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .stat-card h3 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .stat-card p {
+        margin: 10px 0 0 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+    
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .page-header h1 {
+        margin: 0;
+        font-weight: 700;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animated {
+        animation: fadeIn 0.5s ease;
+    }
+    
+    /* Tiếng Việt hóa các text của Flask-Admin bằng CSS */
+    /* Thay thế text tiếng Anh bằng tiếng Việt */
+    .btn-primary:contains("Create"), 
+    a[href*="new"]:not(.btn-logout)::after {
+        content: "Tạo mới";
+    }
+    
+    /* Override text trong các button */
+    .fa-plus::before {
+        margin-right: 5px;
+    }
+    
+    /* Custom các action buttons */
+    .icon-list::after { content: " Danh sách"; }
+    .icon-pencil::after { content: " Chỉnh sửa"; }
+    .icon-trash::after { content: " Xóa"; }
+    .icon-eye::after { content: " Xem"; }
+</style>
+
+<script>
+// JavaScript để thay thế text tiếng Anh sang tiếng Việt
+document.addEventListener('DOMContentLoaded', function() {
+    // Mapping từ tiếng Anh sang tiếng Việt
+    const translations = {
+        'Home': 'Trang Chủ',
+        'List': 'Danh sách',
+        'Create': 'Tạo mới',
+        'Edit': 'Chỉnh sửa',
+        'Delete': 'Xóa',
+        'View': 'Xem',
+        'Export': 'Xuất dữ liệu',
+        'With selected': 'Với mục đã chọn',
+        'Are you sure you want to delete': 'Bạn có chắc muốn xóa',
+        'record': 'bản ghi',
+        'Search': 'Tìm kiếm',
+        'Reset Filters': 'Xóa bộ lọc',
+        'Apply': 'Áp dụng',
+        'Submit': 'Gửi',
+        'Cancel': 'Hủy',
+        'Save': 'Lưu',
+        'Add': 'Thêm',
+        'New': 'Mới',
+        'Filter': 'Lọc',
+        'Actions': 'Hành động',
+        'Selected records': 'Bản ghi đã chọn',
+        'records': 'bản ghi',
+        'record(s)': 'bản ghi',
+        'Displaying': 'Hiển thị',
+        'of': 'của',
+        'First': 'Đầu',
+        'Last': 'Cuối',
+        'Previous': 'Trước',
+        'Next': 'Tiếp',
+        'Page': 'Trang'
+    };
+    
+    // Function để thay thế text
+    function translateText(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            let text = node.textContent.trim();
+            for (let [eng, vie] of Object.entries(translations)) {
+                if (text === eng || text.includes(eng)) {
+                    node.textContent = node.textContent.replace(new RegExp(eng, 'g'), vie);
+                }
+            }
+        } else {
+            for (let child of node.childNodes) {
+                translateText(child);
+            }
+        }
+    }
+    
+    // Chạy translation
+    translateText(document.body);
+    
+    // Observer để translate dynamic content
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    translateText(node);
+                }
+            });
+        });
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});
+</script>
+{% endblock %}
+
+{% block brand %}
+<a class="navbar-brand" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>
+{% endblock %}
+
+{% block main_menu %}
+{{ super() }}
+<div class="navbar-text admin-user-info">
+    <div class="user-avatar">
+        {{ current_user.username[0].upper() if current_user.is_authenticated else '?' }}
+    </div>
+    <span class="user-name">
+        {{ current_user.username if current_user.is_authenticated else 'Guest' }}
+    </span>
+</div>
+<form action="{{ url_for('auth.logout') }}" method="POST" style="margin: 0; margin-left: 15px;">
+    <button type="submit" class="btn btn-logout">
+        <i class="fa fa-sign-out"></i> Đăng xuất
+    </button>
+</form>
+{% endblock %}

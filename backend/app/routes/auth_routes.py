@@ -1,5 +1,5 @@
 # backend/app/routes/auth_routes.py
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, redirect
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.models.user import User
@@ -74,8 +74,13 @@ def login():
     print(f"Login successful for user: {user.username}")
     print(f"Session data: {session}")
     
+    # Kiểm tra xem user có phải admin không
+    redirect_url = '/admin/' if user.is_admin else '/dashboard.html'
+    
     response = make_response(jsonify({
         'message': 'Đăng nhập thành công!',
+        'is_admin': user.is_admin,
+        'redirect': redirect_url,
         'user': {
             'id': user.id,
             'username': user.username,
@@ -88,10 +93,16 @@ def login():
     return response
 
 # --- 3. ĐĂNG XUẤT ---
-@auth_bp.route('/logout', methods=['POST'])
+@auth_bp.route('/logout', methods=['POST', 'GET'])
 @login_required # Phải đăng nhập mới được đăng xuất
 def logout():
     logout_user()
+    
+    # Nếu request từ admin (form POST), redirect về login page
+    if request.referrer and '/admin' in request.referrer:
+        return redirect('/login.html')
+    
+    # Nếu từ API (AJAX), trả về JSON
     return jsonify({'message': 'Đăng xuất thành công!'})
 
 # --- 4. KIỂM TRA ĐANG LÀ AI? (Dùng cho Frontend sau này) ---

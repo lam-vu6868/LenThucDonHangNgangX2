@@ -95,9 +95,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Save user info
                 saveUser(response.data.user);
                 
-                showSuccess('errorMessage', 'Đăng nhập thành công! Đang chuyển hướng...');
+                // Kiểm tra nếu là admin thì redirect đến admin panel
+                const redirectUrl = response.data.redirect || 'dashboard.html';
+                const message = response.data.is_admin 
+                    ? 'Chào mừng Admin! Đang chuyển đến trang quản trị...'
+                    : 'Đăng nhập thành công! Đang chuyển hướng...';
+                
+                showSuccess('errorMessage', message);
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = redirectUrl;
                 }, 1000);
             } else {
                 showError('errorMessage', response.data.error || 'Đăng nhập thất bại!');
