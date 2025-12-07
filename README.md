@@ -137,7 +137,9 @@ SELECT * FROM daily_menus;   -- Xem menus
 
 **Khởi động lại:**
 ```bash
-cd backend && source venv/bin/activate && python3 run.py
+cd backend && source venv/bin/activate && python3 run.py 
+hoặc
+cd /home/lamvu/LenMenu/my-project/backend && source venv/bin/activate && python run.py 
 ```
 
 ---

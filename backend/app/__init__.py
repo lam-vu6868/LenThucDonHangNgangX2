@@ -46,7 +46,6 @@ def create_app():
         # Import model để Flask biết cấu trúc bảng
         from app.models.user import User
         from app.models.menu import DailyMenu
-        from app.models.dish import Dish
         from app.models.weight_log import WeightLog
         
         # Lệnh tạo bảng (Chỉ chạy khi bảng chưa có)

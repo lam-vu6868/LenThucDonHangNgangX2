@@ -48,7 +48,6 @@ function setupEventListeners() {
     });
 
     // View controls
-    document.getElementById('weekViewBtn').addEventListener('click', showWeekView);
     document.getElementById('generateMenuBtn').addEventListener('click', showMenuFormModal);
     document.getElementById('createMenuBtn').addEventListener('click', showMenuFormModal);
     document.getElementById('deleteMenuBtn')?.addEventListener('click', deleteCurrentMenu);
@@ -57,9 +56,6 @@ function setupEventListeners() {
     document.getElementById('closeModalBtn').addEventListener('click', closeMenuFormModal);
     document.getElementById('cancelModalBtn').addEventListener('click', closeMenuFormModal);
     document.getElementById('menuForm').addEventListener('submit', handleMenuFormSubmit);
-
-    // Week view
-    document.getElementById('closeWeekViewBtn')?.addEventListener('click', closeWeekView);
 
     // Logout
     document.getElementById('logoutBtn').addEventListener('click', handleLogout);
@@ -293,64 +289,6 @@ function extractCalories(content) {
     }
 
     return '--';
-}
-
-async function showWeekView() {
-    document.getElementById('singleDayView').style.display = 'none';
-    document.getElementById('weekView').style.display = 'block';
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/menu/week`, {
-            credentials: 'include'
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            displayWeekMenus(data.menus);
-        } else if (response.status === 401) {
-            window.location.href = '/login.html';
-        } else {
-            throw new Error('Failed to load week menus');
-        }
-    } catch (error) {
-        console.error('Error loading week menus:', error);
-        alert('Không thể tải thực đơn tuần. Vui lòng thử lại!');
-    }
-}
-
-function displayWeekMenus(menus) {
-    const weekMenuList = document.getElementById('weekMenuList');
-    
-    if (menus.length === 0) {
-        weekMenuList.innerHTML = '<p class="empty-state">Chưa có thực đơn nào trong 7 ngày qua.</p>';
-        return;
-    }
-
-    weekMenuList.innerHTML = menus.map(menu => {
-        const date = new Date(menu.date);
-        const preview = menu.content.substring(0, 150) + '...';
-        
-        return `
-            <div class="week-menu-item" onclick="viewMenuDate('${menu.date}')">
-                <div class="week-menu-date">
-                    <i class="fas fa-calendar"></i> ${formatDateVN(date)}
-                </div>
-                <div class="week-menu-preview">${preview}</div>
-            </div>
-        `;
-    }).join('');
-}
-
-function viewMenuDate(dateStr) {
-    closeWeekView();
-    currentDate = new Date(dateStr);
-    setDateInput(currentDate);
-    loadMenuByDate(currentDate);
-}
-
-function closeWeekView() {
-    document.getElementById('weekView').style.display = 'none';
-    document.getElementById('singleDayView').style.display = 'block';
 }
 
 function showMenuFormModal() {
