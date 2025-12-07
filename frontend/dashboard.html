@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - LenMenu</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="static/css/dashboard-new.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-utensils"></i>
+                <span>LenMenu</span>
+            </div>
+            <nav class="nav-links">
+                <span class="user-greeting">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Người dùng</span>
+                </span>
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="dashboard">
+        <div class="container">
+            <!-- Health Stats Card -->
+            <div class="health-stats-card">
+                <h3><i class="fas fa-heartbeat"></i> Sức khỏe của bạn</h3>
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <i class="fas fa-weight"></i>
+                        <div class="stat-info">
+                            <span class="stat-label">Cân nặng hiện tại</span>
+                            <span class="stat-value" id="currentWeight">--</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-chart-line"></i>
+                        <div class="stat-info">
+                            <span class="stat-label">BMI</span>
+                            <span class="stat-value" id="currentBMI">--</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <div class="stat-info">
+                            <span class="stat-label">Thay đổi 30 ngày</span>
+                            <span class="stat-change" id="weightChange">Chưa có dữ liệu</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Weight Chart Preview -->
+                <div class="weight-chart-preview" id="weightChartPreview">
+                    <canvas id="weightChartSmall"></canvas>
+                </div>
+                
+                <button id="updateWeightBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Cập nhật cân nặng
+                </button>
+            </div>
+
+            <!-- Top Controls -->
+            <div class="dashboard-header">
+                <div class="date-selector">
+                    <button id="prevDayBtn" class="btn-icon" title="Ngày trước">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="current-date">
+                        <input type="date" id="dateInput" class="date-input">
+                        <button id="todayBtn" class="btn-today">Hôm nay</button>
+                    </div>
+                    <button id="nextDayBtn" class="btn-icon" title="Ngày sau">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="view-controls">
+                    <button id="weekViewBtn" class="btn-view">
+                        <i class="fas fa-calendar-week"></i> 7 ngày qua
+                    </button>
+                    <button id="generateMenuBtn" class="btn btn-primary">
+                        <i class="fas fa-magic"></i> Tạo thực đơn mới
+                    </button>
+                </div>
+            </div>
+
+            <!-- Menu Display -->
+            <div id="singleDayView" class="single-day-view">
+                <!-- Loading State -->
+                <div id="menuLoading" class="loading-state" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>AI đang tạo thực đơn cho bạn...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state">
+                    <i class="fas fa-utensils"></i>
+                    <p>Chưa có thực đơn cho ngày này</p>
+                    <button class="btn btn-primary" id="createMenuBtn">
+                        <i class="fas fa-plus"></i> Tạo thực đơn
+                    </button>
+                </div>
+
+                <!-- Menu Content -->
+                <div id="menuContainer" style="display: none;">
+                    <div class="menu-date-header">
+                        <h2><i class="fas fa-calendar-day"></i> <span id="displayDate">--</span></h2>
+                    </div>
+
+                    <!-- 3 Bữa: Sáng - Trưa - Tối -->
+                    <div class="meals-grid">
+                        <!-- Bữa Sáng -->
+                        <div class="meal-card">
+                            <div class="meal-header breakfast">
+                                <i class="fas fa-mug-hot"></i>
+                                <h3>Bữa Sáng</h3>
+                            </div>
+                            <div class="meal-content" id="breakfastContent">
+                                <p class="meal-placeholder">Chưa có dữ liệu</p>
+                            </div>
+                        </div>
+
+                        <!-- Bữa Trưa -->
+                        <div class="meal-card">
+                            <div class="meal-header lunch">
+                                <i class="fas fa-sun"></i>
+                                <h3>Bữa Trưa</h3>
+                            </div>
+                            <div class="meal-content" id="lunchContent">
+                                <p class="meal-placeholder">Chưa có dữ liệu</p>
+                            </div>
+                        </div>
+
+                        <!-- Bữa Tối -->
+                        <div class="meal-card">
+                            <div class="meal-header dinner">
+                                <i class="fas fa-moon"></i>
+                                <h3>Bữa Tối</h3>
+                            </div>
+                            <div class="meal-content" id="dinnerContent">
+                                <p class="meal-placeholder">Chưa có dữ liệu</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tổng Calo -->
+                    <div class="calories-summary">
+                        <i class="fas fa-fire"></i>
+                        <span>Tổng calo: <strong id="totalCalories">--</strong> kcal</span>
+                    </div>
+                    
+                    <!-- Delete Menu Button -->
+                    <div class="menu-actions" style="margin-top: 20px; text-align: center;">
+                        <button id="deleteMenuBtn" class="btn btn-danger" style="background: #e74c3c;">
+                            <i class="fas fa-trash-alt"></i> Xóa thực đơn này
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Week View -->
+            <div id="weekView" style="display: none;">
+                <div class="week-header">
+                    <h2><i class="fas fa-calendar-week"></i> Thực đơn 7 ngày gần nhất</h2>
+                    <button id="closeWeekViewBtn" class="btn-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="weekMenuList" class="week-menu-list">
+                    <!-- Will be populated by JS -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal: Form nhập thông tin -->
+    <div id="menuFormModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-clipboard-list"></i> Thông Tin Tạo Thực Đơn</h2>
+                <button class="modal-close" id="closeModalBtn">&times;</button>
+            </div>
+            <form id="menuForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label><i class="fas fa-ruler-vertical"></i> Chiều cao (cm)</label>
+                        <input type="number" id="height" step="0.1" placeholder="Ví dụ: 170" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-weight"></i> Cân nặng (kg)</label>
+                        <input type="number" id="weight" step="0.1" placeholder="Ví dụ: 65" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-birthday-cake"></i> Tuổi</label>
+                        <input type="number" id="age" placeholder="Ví dụ: 25" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-venus-mars"></i> Giới tính</label>
+                        <select id="gender" required>
+                            <option value="">-- Chọn --</option>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-bullseye"></i> Mục tiêu dinh dưỡng</label>
+                        <select id="dietary_preferences" required>
+                            <option value="">-- Chọn mục tiêu --</option>
+                            <option value="Giảm cân">Giảm cân</option>
+                            <option value="Tăng cân">Tăng cân</option>
+                            <option value="Duy trì sức khỏe">Duy trì sức khỏe</option>
+                            <option value="Tăng cơ">Tăng cơ</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-running"></i> Mức độ vận động</label>
+                        <select id="activity_level" required>
+                            <option value="">-- Chọn mức độ --</option>
+                            <option value="Ít vận động">Ít vận động (văn phòng)</option>
+                            <option value="Vận động vừa">Vận động vừa (tập 3-4 lần/tuần)</option>
+                            <option value="Vận động nhiều">Vận động nhiều (tập 5-7 lần/tuần)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-ban"></i> Dị ứng / Không ăn được</label>
+                        <textarea id="allergies" rows="3" placeholder="Ví dụ: Hải sản, sữa, gluten..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-week"></i> Số ngày cần tạo</label>
+                        <input type="number" id="numDays" min="1" max="30" value="1" placeholder="Ví dụ: 7">
+                        <small style="display: block; margin-top: 0.5rem; color: #718096;">Tạo thực đơn cho bao nhiêu ngày? (1-30 ngày)</small>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelModalBtn">Hủy</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-magic"></i> Tạo thực đơn
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Weight Update Modal -->
+    <div id="weightModal" class="modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3><i class="fas fa-weight"></i> Cập nhật cân nặng</h3>
+                <button class="close-modal" id="closeWeightModal">&times;</button>
+            </div>
+            <form id="weightForm">
+                <div class="form-group">
+                    <label>Cân nặng hiện tại (kg)</label>
+                    <input type="number" id="newWeight" step="0.1" min="1" max="500" placeholder="Ví dụ: 65.5" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelWeightBtn">Hủy</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Lưu
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Weight Chart -->
+            <div class="weight-chart-container" id="weightChartContainer" style="display: none;">
+                <h4><i class="fas fa-chart-line"></i> Biểu đồ cân nặng 30 ngày</h4>
+                <canvas id="weightChart"></canvas>
+                <div class="weight-stats" id="weightStats"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="static/js/api.js"></script>
+    <script src="static/js/dashboard-new.js"></script>
+    <script src="static/js/weight-tracker.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Bỏ qua thư mục môi trường ảo
+venv/
+env/
+
+# Bỏ qua file biên dịch Python
+__pycache__/
+*.pyc
+
+# QUAN TRỌNG: Bỏ qua file chứa mật khẩu
+.env
+
+# Bỏ qua file rác hệ thống
+.DS_Store

@@ -1,0 +1,23 @@
+# --- Core Framework ---
+Flask
+python-dotenv
+
+# --- Database & Migration (PostgreSQL) ---
+Flask-SQLAlchemy
+psycopg2-binary
+Flask-Migrate
+
+# --- Authentication & Security ---
+Flask-Login
+Flask-Bcrypt
+Flask-CORS
+email-validator
+
+# --- Forms & Validation ---
+Flask-WTF
+
+# --- Admin Panel ---
+Flask-Admin
+
+# --- Google AI (Gemini) ---
+google-generativeai 
