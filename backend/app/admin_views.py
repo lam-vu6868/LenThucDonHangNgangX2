@@ -27,8 +27,6 @@ class SecureModelView(ModelView):
     
     # Override các text tiếng Anh
     def __init__(self, model, session, **kwargs):
-        # Translate action names
-        self.column_default_sort = None
         super(SecureModelView, self).__init__(model, session, **kwargs)
     
     # Custom labels cho các action
@@ -81,9 +79,17 @@ class UserAdminView(SecureModelView):
     # Tên tab/menu
     name = 'Người dùng'
     
+    # Phân trang
+    page_size = 20
+    can_set_page_size = False
+    
+    # Sắp xếp mặc định: mới nhất đầu tiên
+    column_default_sort = ('id', True)  # True = descending
+    
     column_list = ['id', 'username', 'email', 'is_admin', 'height', 'weight', 'created_at']
     column_searchable_list = ['username', 'email']
-    column_filters = ['is_admin', 'gender', 'created_at']
+    # Chỉ giữ lại bộ lọc cần thiết
+    column_filters = ['is_admin', 'created_at']
     column_editable_list = ['is_admin']
     
     # Hide password hash
@@ -118,9 +124,16 @@ class MenuAdminView(SecureModelView):
     # Tên tab/menu
     name = 'Thực đơn'
     
+    # Phân trang
+    page_size = 20
+    can_set_page_size = False
+    
+    # Sắp xếp mặc định: mới nhất đầu tiên
+    column_default_sort = ('id', True)  # True = descending
+    
     column_list = ['id', 'owner', 'date', 'total_calories', 'created_at']
     column_searchable_list = ['content']
-    column_filters = ['date', 'created_at', 'user_id']
+    column_filters = ['date']  # Chỉ lọc theo ngày thực đơn
     
     # Cho phép tìm kiếm theo tên user
     column_sortable_list = ['id', ('owner', 'owner.username'), 'date', 'total_calories', 'created_at']
@@ -150,8 +163,15 @@ class WeightLogAdminView(SecureModelView):
     # Tên tab/menu
     name = 'Cân nặng'
     
+    # Phân trang
+    page_size = 20
+    can_set_page_size = False
+    
+    # Sắp xếp mặc định: mới nhất đầu tiên
+    column_default_sort = ('id', True)  # True = descending
+    
     column_list = ['id', 'user', 'weight', 'recorded_at']
-    column_filters = ['recorded_at', 'user_id']
+    column_filters = []  # Bỏ hết bộ lọc
     
     # Cho phép tìm kiếm theo tên user
     column_sortable_list = ['id', ('user', 'user.username'), 'weight', 'recorded_at']

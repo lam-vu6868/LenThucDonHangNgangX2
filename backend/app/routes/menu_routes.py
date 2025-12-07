@@ -2,11 +2,46 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
 from datetime import date, timedelta
+import re
 from app import db
 from app.models.menu import DailyMenu
 from app.services.ai_service import get_ai_response
 
 menu_bp = Blueprint('menu', __name__)
+
+def extract_total_calories(menu_content):
+    """
+    Trích xuất tổng số calo từ nội dung thực đơn.
+    Tìm kiếm các pattern như: "Tổng calo: 1500 kcal" hoặc "Tổng: 1500kcal"
+    """
+    if not menu_content:
+        return 0
+    
+    # Tìm pattern "Tổng calo: [số] kcal" hoặc tương tự
+    patterns = [
+        r'Tổng\s+calo[:\s]+([0-9,\.]+)\s*kcal',
+        r'Tổng[:\s]+([0-9,\.]+)\s*kcal',
+        r'Calo\s+tổng[:\s]+([0-9,\.]+)',
+        r'Total[:\s]+([0-9,\.]+)\s*kcal',
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, menu_content, re.IGNORECASE)
+        if match:
+            # Lấy số và loại bỏ dấu phẩy/chấm (nếu có)
+            calories_str = match.group(1).replace(',', '').replace('.', '')
+            try:
+                return int(calories_str)
+            except ValueError:
+                continue
+    
+    # Nếu không tìm thấy, thử tính tổng từ các món ăn
+    calorie_matches = re.findall(r'[-\*]\s*[^\n]+?([0-9]+)\s*kcal', menu_content, re.IGNORECASE)
+    if calorie_matches:
+        total = sum(int(cal) for cal in calorie_matches)
+        return total
+    
+    return 0
 
 @menu_bp.route('/generate', methods=['POST'])
 @login_required # Bắt buộc phải đăng nhập mới được tạo thực đơn
@@ -136,9 +171,13 @@ def generate_menu():
         # Kiểm tra xem ngày đã chọn đã có thực đơn chưa?
         existing_menu = DailyMenu.query.filter_by(user_id=user.id, date=start_date).first()
         
+        # Trích xuất tổng calo từ nội dung AI
+        total_cals = extract_total_calories(ai_reply)
+        
         if existing_menu:
             # Nếu có rồi thì cập nhật lại nội dung mới
             existing_menu.content = ai_reply
+            existing_menu.total_calories = total_cals
             msg = f"Đã cập nhật thực đơn mới cho ngày {start_date.strftime('%d/%m/%Y')}!"
         else:
             # Nếu chưa có thì tạo mới
@@ -146,7 +185,7 @@ def generate_menu():
                 user_id=user.id,
                 date=start_date,
                 content=ai_reply,
-                total_calories=0
+                total_calories=total_cals
             )
             db.session.add(new_menu)
             msg = f"Đã tạo thực đơn thành công cho ngày {start_date.strftime('%d/%m/%Y')}!"
@@ -253,11 +292,14 @@ def generate_menu():
                 # Gọi AI để tạo thực đơn cho ngày này
                 daily_ai_reply = get_ai_response(daily_prompt)
                 
+                # Trích xuất tổng calo
+                total_cals = extract_total_calories(daily_ai_reply)
+                
                 new_menu = DailyMenu(
                     user_id=user.id,
                     date=current_date,
                     content=daily_ai_reply,
-                    total_calories=0
+                    total_calories=total_cals
                 )
                 db.session.add(new_menu)
                 db.session.commit()
