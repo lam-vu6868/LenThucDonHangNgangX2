@@ -307,14 +307,6 @@ function displayMenu(menuData, date) {
 
     // Set date header
     document.getElementById('displayDate').textContent = formatDateVN(date);
-    
-    // Attach delete button event listener (must be done after menuContainer is visible)
-    const deleteBtn = document.getElementById('deleteMenuBtn');
-    if (deleteBtn) {
-        // Remove old listener if exists
-        deleteBtn.onclick = null;
-        deleteBtn.onclick = deleteCurrentMenu;
-    }
 
     // Parse AI response and split into meals
     const content = menuData.content;
@@ -586,6 +578,8 @@ async function deleteCurrentMenu() {
         });
         
         if (response.ok) {
+            const responseData = await response.json().catch(() => ({}));
+            
             // Hiển thị thông báo thành công
             if (typeof window.showNotification === 'function') {
                 window.showNotification('✅ Đã xóa thực đơn thành công!', 'success');
@@ -593,21 +587,32 @@ async function deleteCurrentMenu() {
                 alert('✅ Đã xóa thực đơn thành công!');
             }
             
-            // Reload menu (sẽ hiển thị empty state)
-            await loadMenuByDate(currentDate);
+            // Hiển thị empty state trực tiếp thay vì gọi loadMenuByDate (tránh lỗi 404)
+            document.getElementById('menuLoading').style.display = 'none';
+            document.getElementById('menuContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            
+            // Hiện nút tạo thực đơn mới
+            toggleCreateMenuButton(true);
+            
+            // Reload statistics
+            await loadStatistics();
             
         } else if (response.status === 401) {
             window.location.href = '/login.html';
         } else {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || 'Không thể xóa thực đơn');
+            const responseData = await response.json().catch(() => ({}));
+            throw new Error(responseData.error || 'Không thể xóa thực đơn');
         }
     } catch (error) {
         console.error('Error deleting menu:', error);
-        if (typeof window.showNotification === 'function') {
-            window.showNotification('❌ ' + error.message, 'error');
-        } else {
-            alert('❌ Lỗi: ' + error.message);
+        // Chỉ hiện thông báo lỗi nếu không phải lỗi network timeout
+        if (error.message && !error.message.includes('fetch')) {
+            if (typeof window.showNotification === 'function') {
+                window.showNotification('❌ ' + error.message, 'error');
+            } else {
+                alert('❌ Lỗi: ' + error.message);
+            }
         }
     }
 }
