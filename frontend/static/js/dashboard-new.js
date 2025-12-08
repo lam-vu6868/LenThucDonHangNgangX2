@@ -266,10 +266,14 @@ async function loadMenuByDate(date) {
         if (response.ok) {
             const data = await response.json();
             displayMenu(data, date);
+            // Có thực đơn rồi -> ẩn nút "Tạo thực đơn mới"
+            toggleCreateMenuButton(false);
         } else if (response.status === 404) {
             // No menu for this date
             document.getElementById('menuLoading').style.display = 'none';
             document.getElementById('emptyState').style.display = 'block';
+            // Chưa có thực đơn -> hiện nút "Tạo thực đơn mới"
+            toggleCreateMenuButton(true);
         } else if (response.status === 401) {
             window.location.href = '/login.html';
         } else {
@@ -279,6 +283,20 @@ async function loadMenuByDate(date) {
         console.error('Error loading menu:', error);
         document.getElementById('menuLoading').style.display = 'none';
         document.getElementById('emptyState').style.display = 'block';
+        // Lỗi -> coi như chưa có thực đơn, hiện nút
+        toggleCreateMenuButton(true);
+    }
+}
+
+function toggleCreateMenuButton(show) {
+    const createBtn = document.getElementById('createMenuBtn');
+    const generateBtn = document.getElementById('generateMenuBtn');
+    
+    if (createBtn) {
+        createBtn.style.display = show ? 'flex' : 'none';
+    }
+    if (generateBtn) {
+        generateBtn.style.display = show ? 'inline-flex' : 'none';
     }
 }
 

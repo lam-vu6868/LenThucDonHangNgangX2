@@ -322,6 +322,7 @@ Hãy đánh giá TRUNG THỰC:"""
         evaluation = get_ai_response(prompt)
         
         return jsonify({
+            'success': True,
             'evaluation': evaluation.strip(),
             'days': days,
             'data_points': len(logs),
@@ -336,7 +337,10 @@ Hãy đánh giá TRUNG THỰC:"""
         }), 200
         
     except Exception as e:
-        return jsonify({'error': f'Không thể tạo đánh giá: {str(e)}'}), 500
+        return jsonify({
+            'success': False,
+            'error': f'Không thể tạo đánh giá: {str(e)}'
+        }), 500
 
 @weight_bp.route('/delete/<int:log_id>', methods=['DELETE'])
 @login_required
