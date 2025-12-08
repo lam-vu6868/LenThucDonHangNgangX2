@@ -100,11 +100,11 @@
                             <span class="stat-label" id="bmiCategory">Đang tính...</span>
                         </div>
                     </div>
-                    <div class="stat-item">
-                        <i class="fas fa-calendar-alt"></i>
+                    <div class="stat-item stat-item-clickable" id="evaluationTrigger">
+                        <i class="fas fa-chart-line"></i>
                         <div class="stat-info">
-                            <span class="stat-label">Thay đổi 30 ngày</span>
-                            <span class="stat-change" id="weightChange">Chưa có dữ liệu</span>
+                            <span class="stat-label">Đánh giá tiến trình</span>
+                            <span class="stat-action">Nhấn để xem <i class="fas fa-chevron-right"></i></span>
                         </div>
                     </div>
                 </div>
@@ -329,6 +329,35 @@
                 <canvas id="weightChart"></canvas>
                 <div class="weight-stats" id="weightStats"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Evaluation Modal -->
+    <div id="evaluationModal" class="modal">
+        <div class="modal-content modal-evaluation">
+            <div class="modal-header">
+                <h3><i class="fas fa-robot"></i> Đánh giá tiến trình của bạn</h3>
+                <button class="close-modal" id="closeEvaluationModal">&times;</button>
+            </div>
+            
+            <div class="evaluation-tabs-modal">
+                <button class="tab-btn-modal active" data-days="15">
+                    <i class="fas fa-calendar-week"></i> 15 ngày
+                </button>
+                <button class="tab-btn-modal" data-days="30">
+                    <i class="fas fa-calendar-alt"></i> 30 ngày
+                </button>
+            </div>
+            
+            <div class="evaluation-content-modal" id="evaluationContentModal">
+                <div class="evaluation-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Đang phân tích...
+                </div>
+            </div>
+            
+            <button id="refreshEvaluationBtn" class="btn btn-secondary">
+                <i class="fas fa-sync-alt"></i> Làm mới đánh giá
+            </button>
         </div>
     </div>
 

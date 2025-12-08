@@ -7,6 +7,8 @@ async function initWeightTracking() {
     await loadWeightData();
     await loadWeightChartPreview(); // Load small chart on card
     setupWeightEventListeners();
+    setupEvaluationListeners();
+    // Không load evaluation ngay - chỉ load khi mở modal
 }
 
 // Load current weight and history
@@ -33,7 +35,7 @@ async function loadWeightData(date = null) {
         
     } catch (error) {
         console.error('Error loading weight data:', error);
-        showNotification('Không thể tải dữ liệu cân nằng', 'error');
+        // Không hiện thông báo khi load trang để tránh làm phiền user
     }
 }
 
@@ -146,6 +148,10 @@ async function handleWeightSubmit() {
     submitBtn.disabled = true;
     
     try {
+        // Lấy ngày hiện tại mà người dùng đang xem từ biến global
+        const currentViewDate = window.currentDate || new Date();
+        const dateStr = currentViewDate.toISOString().split('T')[0];
+        
         const response = await fetch(`${API_BASE_URL}/api/weight/log`, {
             method: 'POST',
             headers: {
@@ -153,15 +159,17 @@ async function handleWeightSubmit() {
             },
             credentials: 'include',
             body: JSON.stringify({
-                weight: newWeight
+                weight: newWeight,
+                date: dateStr  // Gửi ngày người dùng đang xem
             })
         });
         
         const data = await response.json();
         
         if (response.ok) {
-            showNotification('✓ Đã cập nhật cân nặng thành công!', 'success');
-            await loadWeightData(); // Reload current stats
+            showNotification(data.message || '✓ Đã cập nhật cân nặng thành công!', 'success');
+            // Reload lại dữ liệu cho ngày hiện tại
+            await loadWeightData(dateStr);
             await loadWeightChart(); // Reload modal chart
             await loadWeightChartPreview(); // Reload small chart on card
             document.getElementById('newWeight').value = '';
@@ -305,84 +313,90 @@ async function loadWeightChartPreview() {
         
         document.getElementById('weightChartPreview').style.display = 'block';
         
-        // Prepare chart data
-        const labels = data.history.map(entry => {
+        // Prepare chart data - Sắp xếp theo thời gian tăng dần
+        const sortedHistory = [...data.history].sort((a, b) => 
+            new Date(a.recorded_at) - new Date(b.recorded_at)
+        );
+        
+        const labels = sortedHistory.map(entry => {
             const date = new Date(entry.recorded_at);
             return `${date.getDate()}/${date.getMonth() + 1}`;
         });
         
-        const weights = data.history.map(entry => entry.weight);
+        const weights = sortedHistory.map(entry => entry.weight);
         
-        // Destroy existing chart
+        // If chart exists, update data instead of recreating
         if (weightChartSmall) {
-            weightChartSmall.destroy();
-        }
-        
-        // Create new chart
-        const ctx = document.getElementById('weightChartSmall').getContext('2d');
-        weightChartSmall = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Cân nặng',
-                    data: weights,
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 3,
-                    pointBackgroundColor: '#667eea',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 10,
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.parsed.y.toFixed(1)} kg`;
-                            }
-                        }
-                    }
+            weightChartSmall.data.labels = labels;
+            weightChartSmall.data.datasets[0].data = weights;
+            weightChartSmall.update('active'); // Force update with animation
+        } else {
+            // Create new chart only if it doesn't exist
+            const ctx = document.getElementById('weightChartSmall').getContext('2d');
+            weightChartSmall = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cân nặng',
+                        data: weights,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 5
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        ticks: {
-                            callback: function(value) {
-                                return value.toFixed(1) + ' kg';
-                            },
-                            font: {
-                                size: 11
-                            }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
                         },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y.toFixed(1)} kg`;
+                                }
+                            }
                         }
                     },
-                    x: {
-                        ticks: {
-                            font: {
-                                size: 10
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1) + ' kg';
+                                },
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
                             }
                         },
-                        grid: {
-                            display: false
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
         
     } catch (error) {
         console.error('Error loading weight chart preview:', error);
@@ -440,6 +454,142 @@ function showNotification(message, type = 'info') {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
     }, 3000);
+}
+
+// ===== AI EVALUATION FUNCTIONS =====
+function setupEvaluationListeners() {
+    // Open modal trigger
+    const evaluationTrigger = document.getElementById('evaluationTrigger');
+    const evaluationModal = document.getElementById('evaluationModal');
+    const closeEvaluationModal = document.getElementById('closeEvaluationModal');
+    
+    if (evaluationTrigger) {
+        evaluationTrigger.addEventListener('click', () => {
+            evaluationModal.style.display = 'flex';
+            loadWeightEvaluation(30); // Default 30 days
+        });
+    }
+    
+    // Close modal
+    if (closeEvaluationModal) {
+        closeEvaluationModal.addEventListener('click', () => {
+            evaluationModal.style.display = 'none';
+        });
+    }
+    
+    // Close on outside click
+    if (evaluationModal) {
+        evaluationModal.addEventListener('click', (e) => {
+            if (e.target === evaluationModal) {
+                evaluationModal.style.display = 'none';
+            }
+        });
+    }
+    
+    // Tab buttons in modal
+    const tabBtns = document.querySelectorAll('.tab-btn-modal');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            // Remove active from all
+            tabBtns.forEach(b => b.classList.remove('active'));
+            // Add active to clicked
+            e.target.classList.add('active');
+            
+            const days = parseInt(e.target.dataset.days);
+            await loadWeightEvaluation(days);
+        });
+    });
+    
+    // Refresh button
+    const refreshBtn = document.getElementById('refreshEvaluationBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+            const activeDays = document.querySelector('.tab-btn-modal.active').dataset.days;
+            await loadWeightEvaluation(parseInt(activeDays));
+        });
+    }
+}
+
+async function loadWeightEvaluation(days = 30) {
+    const contentEl = document.getElementById('evaluationContentModal');
+    const refreshBtn = document.getElementById('refreshEvaluationBtn');
+    
+    // Show loading
+    contentEl.innerHTML = `
+        <div class="evaluation-loading">
+            <i class="fas fa-spinner fa-spin"></i> AI đang phân tích ${days} ngày gần nhất...
+        </div>
+    `;
+    
+    if (refreshBtn) refreshBtn.style.display = 'none';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/weight/evaluate?days=${days}`, {
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Không thể tải đánh giá');
+        }
+        
+        const data = await response.json();
+        
+        // Kiểm tra nếu không đủ dữ liệu
+        if (!data.success) {
+            contentEl.innerHTML = `
+                <div class="evaluation-text" style="text-align: center; padding: 30px 20px;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">📊</div>
+                    <div style="white-space: pre-line; line-height: 1.6;">${data.message}</div>
+                </div>
+            `;
+            if (refreshBtn) refreshBtn.style.display = 'block';
+            return;
+        }
+        
+        // Display evaluation
+        let html = `<div class="evaluation-text">${data.evaluation}</div>`;
+        
+        // Add summary if available
+        if (data.summary) {
+            const summary = data.summary;
+            const changeClass = summary.change < 0 ? 'positive' : summary.change > 0 ? 'negative' : '';
+            
+            html += `
+                <div class="evaluation-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">Bắt đầu</span>
+                        <span class="summary-value">${summary.start_weight} kg</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Hiện tại</span>
+                        <span class="summary-value">${summary.current_weight} kg</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Thay đổi</span>
+                        <span class="summary-value ${changeClass}">${summary.change > 0 ? '+' : ''}${summary.change} kg</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">TB/tuần</span>
+                        <span class="summary-value">${summary.avg_per_week > 0 ? '+' : ''}${summary.avg_per_week} kg</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        contentEl.innerHTML = html;
+        
+        // Show refresh button
+        if (refreshBtn) refreshBtn.style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error loading evaluation:', error);
+        contentEl.innerHTML = `
+            <div class="evaluation-text" style="color: #666; text-align: center;">
+                ⚠️ Không thể tải đánh giá. Vui lòng thử lại sau.
+            </div>
+        `;
+        if (refreshBtn) refreshBtn.style.display = 'block';
+    }
 }
 
 // Initialize when page loads

@@ -1,6 +1,8 @@
 // Dashboard New JavaScript
 
 let currentDate = new Date();
+// Expose currentDate globally để các module khác có thể truy cập
+window.currentDate = currentDate;
 
 // Load user info on page load
 document.addEventListener('DOMContentLoaded', async () => {
@@ -18,6 +20,7 @@ function setupEventListeners() {
     // Date navigation
     document.getElementById('prevDayBtn').addEventListener('click', () => {
         currentDate.setDate(currentDate.getDate() - 1);
+        window.currentDate = currentDate;  // Cập nhật biến global
         setDateInput(currentDate);
         loadMenuByDate(currentDate);
         if (typeof window.reloadWeightForDate === 'function') {
@@ -27,6 +30,7 @@ function setupEventListeners() {
 
     document.getElementById('nextDayBtn').addEventListener('click', () => {
         currentDate.setDate(currentDate.getDate() + 1);
+        window.currentDate = currentDate;  // Cập nhật biến global
         setDateInput(currentDate);
         loadMenuByDate(currentDate);
         if (typeof window.reloadWeightForDate === 'function') {
@@ -36,6 +40,7 @@ function setupEventListeners() {
 
     document.getElementById('todayBtn').addEventListener('click', () => {
         currentDate = new Date();
+        window.currentDate = currentDate;  // Cập nhật biến global
         setDateInput(currentDate);
         loadMenuByDate(currentDate);
         if (typeof window.reloadWeightForDate === 'function') {
@@ -45,6 +50,7 @@ function setupEventListeners() {
 
     document.getElementById('dateInput').addEventListener('change', (e) => {
         currentDate = new Date(e.target.value);
+        window.currentDate = currentDate;  // Cập nhật biến global
         loadMenuByDate(currentDate);
         if (typeof window.reloadWeightForDate === 'function') {
             window.reloadWeightForDate(currentDate);

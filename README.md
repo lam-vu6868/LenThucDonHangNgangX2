@@ -10,7 +10,7 @@
 
 ## 🛠️ Tech Stack
 - **Backend:** Flask + PostgreSQL
-- **Frontend:** HTML/CSS/JavaScript  
+- **Frontend:** HTML/CSS/JavaScript
 - **AI:** Google Gemini (gemma-3-1b-it)
 
 ---

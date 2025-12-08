@@ -1502,6 +1502,171 @@
     width: 100%;
 }
 
+/* ===== CLICKABLE STAT ITEM ===== */
+.stat-item-clickable {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.stat-item-clickable:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: scale(1.02);
+}
+
+.stat-item-clickable:hover i {
+    color: white;
+}
+
+.stat-action {
+    font-size: 0.85rem;
+    color: #667eea;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.25rem;
+}
+
+.stat-item-clickable:hover .stat-action {
+    color: white;
+}
+
+/* ===== EVALUATION MODAL ===== */
+.modal-evaluation {
+    max-width: 600px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.modal-evaluation .modal-header {
+    background: transparent;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-evaluation .modal-header h3 {
+    color: white;
+}
+
+.modal-evaluation .close-modal {
+    color: white;
+}
+
+.evaluation-tabs-modal {
+    display: flex;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    justify-content: center;
+}
+
+.tab-btn-modal {
+    padding: 0.75rem 2rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tab-btn-modal:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.tab-btn-modal.active {
+    background: white;
+    color: #667eea;
+    border-color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.evaluation-content-modal {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    min-height: 200px;
+    color: #333;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+.evaluation-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #667eea;
+    font-size: 1rem;
+    padding: 3rem;
+}
+
+.evaluation-text {
+    animation: fadeIn 0.5s ease;
+    white-space: pre-line;
+}
+
+.evaluation-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f0f0f0;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: center;
+}
+
+.summary-label {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.summary-value.positive {
+    color: #10b981;
+}
+
+.summary-value.negative {
+    color: #ef4444;
+}
+
+#refreshEvaluationBtn {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 0.75rem;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+#refreshEvaluationBtn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
 @media (max-width: 768px) {
     .recipe-content-grid {
         grid-template-columns: 1fr;
@@ -1521,5 +1686,15 @@
     
     .recipe-tabs {
         overflow-x: auto;
+    }
+    
+    .evaluation-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .evaluation-summary {
+        grid-template-columns: 1fr 1fr;
     }
 }
